@@ -1,0 +1,48 @@
+<?php
+include('navbar.php');
+define('MYSQLUSER', 'root');
+define('MYSQLPASS', '');
+define('HOSTNAME', 'localhost');
+
+if ($connection = new mysqli(HOSTNAME, MYSQLUSER, MYSQLPASS)) {
+    echo 'Successful connection to MySQL <br>';
+    if ($result = $connection->query("CREATE DATABASE IF NOT EXISTS todo")) {
+        $connection->select_db('todo');
+        echo "Database created<br>";
+
+        $query_users = "CREATE TABLE users (
+            username varchar(20) NOT NULL,
+            password varchar(45) NOT NULL,
+            PRIMARY KEY (username)
+        ) ENGINE = InnoDB";
+
+        if ($connection->query($query_users)) {
+            echo "Users table created successfully<br>";
+        } else {
+            echo "Error creating users table: " . $connection->error . "<br>";
+        }
+
+        $query_tasks = "CREATE TABLE tasks (
+            taskid int(11) NOT NULL AUTO_INCREMENT,
+            username varchar(20) NOT NULL,
+            task varchar(100) NOT NULL,
+            done tinyint(4) DEFAULT NULL,
+            progress varchar(100),
+            tanggal DATE,
+            PRIMARY KEY (taskid),
+            CONSTRAINT username FOREIGN KEY (username) REFERENCES users (username)
+        ) ENGINE = InnoDB";
+
+        if ($connection->query($query_tasks)) {
+            echo "Tasks table created successfully<br>";
+        } else {
+            echo "Error creating tasks table: " . $connection->error . "<br>";
+        }
+    } else {
+        echo "Problem creating the database. Is the user not allowed to create a database or does the database already exist?<br>";
+    }
+
+    $connection->close();
+} else {
+    echo "Connection to MySQL failed: " . $connection->connect_error . "<br>";
+}
